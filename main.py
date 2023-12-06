@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import calendar
@@ -85,5 +86,54 @@ def races_calendar_for_season(year):
     plt.show()
 
 
-wins_per_driver_for_season(2022)
-races_calendar_for_season(2022)
+# create a pie chart of nationality distribution given a year
+def nationality_representation_for_season(year):
+    # check if year is valid
+    races = pd.read_csv('./data/full/races.csv')
+    if year not in races.year.unique():
+        print('Year not found')
+        return
+    
+    # prepare drivers data
+    drivers = pd.read_csv('./data/full/drivers.csv')
+    drivers = drivers.drop(columns=['number', 'code', 'url', 'dob', 'driverRef'])
+
+    # load other data
+    results = pd.read_csv('./data/full/results.csv')
+    
+    # filter races in the given year
+    races_in_year = races[races['year'] == year]
+
+    # merge with results to get driverIds
+    results_in_year = pd.merge(races_in_year, results, on='raceId')
+
+    # get unique driverIds for the races in the given year
+    driver_ids_in_year = results_in_year['driverId'].unique()
+
+    # filter drivers who participated in the given year
+    drivers_in_year = drivers[drivers['driverId'].isin(driver_ids_in_year)]    
+
+    # get nationality distribution
+    nationality_distribution = drivers_in_year['nationality'].value_counts().reset_index()
+    nationality_distribution.columns = ['nationality', 'count']
+    nationality_distribution = nationality_distribution.sort_values(by='count', ascending=False)
+    
+    # create a pie chart
+    plt.figure(figsize=(10, 10))
+
+    custom_colors = plt.cm.plasma(np.linspace(0, 1, len(nationality_distribution['nationality'])))
+    # random shuffle the colors
+    # np.random.shuffle(custom_colors)
+
+    # reverse the colors
+    custom_colors = custom_colors[::-1]
+
+    
+    plt.pie(nationality_distribution['count'], labels=nationality_distribution['nationality'], autopct='%1.1f%%', colors=custom_colors)
+    plt.title(f'Nationality Distribution of F1 Drivers in {year} Season', fontdict={'fontsize': 20, 'fontweight': 'bold'}, y=1.05)
+    plt.show()
+    
+
+# wins_per_driver_for_season(2022)
+# races_calendar_for_season(2022)
+nationality_representation_for_season(2023)
