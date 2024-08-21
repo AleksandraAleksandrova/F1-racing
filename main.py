@@ -40,16 +40,16 @@ def download_and_prepare_data():
 
 
 # get wins per driver in a given year
-def wins_per_driver_for_season(year):
-    races = pd.read_csv('./data/full/races.csv')
+def wins_per_driver_for_season(year, extract_path):
+    races = pd.read_csv(os.path.join(extract_path, 'races.csv'))
 
     if year not in races.year.unique():
         print('Year not found')
         return  
     
     # load other data
-    drivers = pd.read_csv('./data/full/drivers.csv')
-    results = pd.read_csv('./data/full/results.csv')
+    drivers = pd.read_csv(os.path.join(extract_path, 'drivers.csv'))
+    results = pd.read_csv(os.path.join(extract_path, 'results.csv'))
     
 
     # prepare races data
@@ -87,10 +87,11 @@ def wins_per_driver_for_season(year):
 
     plt.show()
 
-    
-def races_calendar_for_season(year):
+# get the number of races per month in a given year
+def num_races_per_month_for_season(year, extract_path):
     # check if year is valid
-    races = pd.read_csv('./data/full/races.csv')
+    races = pd.read_csv(os.path.join(extract_path, 'races.csv'))
+    
     if year not in races['year'].unique():
         print('Year not found')
         return
@@ -123,19 +124,19 @@ def races_calendar_for_season(year):
 
 
 # create a pie chart of nationality distribution given a year
-def nationality_representation_for_season(year):
+def nationality_representation_for_season(year, extract_path):
     # check if year is valid
-    races = pd.read_csv('./data/full/races.csv')
+    races = pd.read_csv(os.path.join(extract_path, 'races.csv'))
     if year not in races.year.unique():
         print('Year not found')
         return
     
     # prepare drivers data
-    drivers = pd.read_csv('./data/full/drivers.csv')
+    drivers = pd.read_csv(os.path.join(extract_path, 'drivers.csv'))
     drivers = drivers.drop(columns=['number', 'code', 'url', 'dob', 'driverRef'])
 
     # load other data
-    results = pd.read_csv('./data/full/results.csv')
+    results = pd.read_csv(os.path.join(extract_path, 'results.csv'))
     
     # filter races in the given year
     races_in_year = races[races['year'] == year]
@@ -170,9 +171,12 @@ def nationality_representation_for_season(year):
     plt.show()
     
 
-# wins_per_driver_for_season(2022)
-# races_calendar_for_season(2022)
-# nationality_representation_for_season(2023)
+def main():
+    extract_path = download_and_prepare_data()
+    wins_per_driver_for_season(2018, extract_path)
+    num_races_per_month_for_season(2022, extract_path)
+    nationality_representation_for_season(2023, extract_path)
 
 
-download_and_prepare_data()
+main()
+
