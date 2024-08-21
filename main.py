@@ -2,6 +2,42 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import calendar
+import os
+from kaggle.api.kaggle_api_extended import KaggleApi
+import zipfile
+
+# Function to download, extract, and clean up the dataset
+def download_and_prepare_data():
+    # Initialize Kaggle API
+    api = KaggleApi()
+    api.authenticate()
+
+    # Set paths and dataset
+    dataset = 'rohanrao/formula-1-world-championship-1950-2020'
+    download_path = './formula-1-world-championship-1950-2020.zip'
+    extract_path = './f1_data'
+    
+    # Check if the data is already extracted
+    if not os.path.exists(extract_path):
+        try:
+            # Download the dataset
+            print('Downloading dataset...')
+            api.dataset_download_files(dataset, path='.', unzip=False)
+            
+            # Extract the zip file
+            print('Extracting dataset...')
+            with zipfile.ZipFile(download_path, 'r') as zip_ref:
+                zip_ref.extractall(extract_path)
+            
+            # Remove the zip file after extraction
+            print('Cleaning up...')
+            os.remove(download_path)
+            
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    
+    return extract_path
+
 
 # get wins per driver in a given year
 def wins_per_driver_for_season(year):
@@ -136,4 +172,7 @@ def nationality_representation_for_season(year):
 
 # wins_per_driver_for_season(2022)
 # races_calendar_for_season(2022)
-nationality_representation_for_season(2023)
+# nationality_representation_for_season(2023)
+
+
+download_and_prepare_data()
